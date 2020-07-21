@@ -284,7 +284,7 @@ class Playground {
         const skybox = BABYLON.MeshBuilder.CreateBox('skybox', { size: 1000.0 }, scene);
         const skyboxMaterial = new BABYLON.StandardMaterial('', scene);
         skyboxMaterial.backFaceCulling = false;
-        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('textures/skybox', scene);
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('https://playground.babylonjs.com/textures/skybox', scene);
         skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
         skyboxMaterial.disableLighting = true;
         skybox.material = skyboxMaterial;
@@ -632,20 +632,17 @@ class Playground {
                 bullet.computeWorldMatrix(true);
                 bullet.physicsImpostor.applyForce(new BABYLON.Vector3(0, 9.8 * 1e-10, 0), bullet.getAbsolutePosition());
                 const pick = scene.pickWithRay(ray);
-                // const pick = scene.pickWithRay(ray, mesh => {
-                //     obstacles.has(mesh as BABYLON.Mesh)
-                // });
                 if (pick.hit) {
-                    console.log('hit');
-                    console.log(bullet.position);
-                    console.log(ray);
-                    console.log(pick.pickedMesh.name);
-                    console.log(pick.pickedMesh.getAbsolutePosition());
-                    // bullet.physicsImpostor.sleep();
-                    // bullets.delete(bullet.uniqueId);
-                    // bullet.physicsImpostor.dispose();
-                    // bullet.dispose();
-                    // rayHelper.dispose();
+                    console.log(`%cRay hit: ${pick.pickedMesh.name}`, 'color: red; font-weight: bold;');
+                    console.log(`Ray length: ${ray.length}`);
+                    console.log('Ray origin: ', ray.origin.clone());
+                    console.log('Ray direction: ', ray.direction.clone());
+                    console.log('Ray: ', ray);
+                    bullet.physicsImpostor.sleep();
+                    bullets.delete(bullet.uniqueId);
+                    bullet.physicsImpostor.dispose();
+                    bullet.dispose();
+                    rayHelper.dispose();
                 }
             }
             players.forEach(player => {
@@ -732,15 +729,16 @@ class Playground {
                 q.y = c.y;
                 q.z = c.z;
                 q.w = Math.sqrt(Math.pow(v1.length(), 2) * Math.pow(v2.length(), 2)) + BABYLON.Vector3.Dot(v1, v2);
+                q.normalize();
                 bullet.rotationQuaternion = q;
-                // bullet.computeWorldMatrix(true);
                 // // @ts-ignore
                 // const ray = new BABYLON.Ray();
                 const ray = new BABYLON.Ray(new BABYLON.Vector3(), new BABYLON.Vector3(1, 0, 0), 1);
                 const rayHelper = new BABYLON.RayHelper(ray);
+                bullet.computeWorldMatrix(true);
                 rayHelper.attachToMesh(bullet, new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, 0), 2);
                 // rayHelper.show(scene, new BABYLON.Color3(1, 0, 0));
-                // bullet.physicsImpostor.setLinearVelocity(finalDir.scale(1));
+                bullet.physicsImpostor.setLinearVelocity(finalDir.scale(10));
                 bullets.set(bullet.uniqueId, {
                     bullet,
                     ray,
