@@ -2,6 +2,8 @@
 
 Potential regression in yesterday's Nightly preview: https://github.com/BabylonJS/Babylon.js/commit/a6cc595d9f16fb916f88156d537c6bc426240b37
 
+https://www.youtube.com/watch?v=uU4TY9nN8CI
+
 In `server/`, run `npm run launch`. Then visit http://localhost/ to view Playground.
 
 To see the potential regression, in `index.html`, swap
