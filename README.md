@@ -17,3 +17,5 @@ with
 // Yesterday's Nightly
 <!-- <script src="lib/babylon.js"></script> -->
 ```
+
+If you would like to modify the Playground's code in `client/ts/app.ts`, run `npm run build` in `client/` to build your changes.
