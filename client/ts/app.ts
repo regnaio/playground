@@ -609,6 +609,7 @@ class Playground {
       // ak47.rotation.copyFrom(new BABYLON.Vector3(0.8, 1.2, -1.8));
 
       const crossbow = new AssetClone(crossbowAsset, scene);
+      // crossbow.meshes[0].renderingGroupId = 1;
       const marksman = new AssetClone(marksmanAsset, scene);
 
       const karambit = new AssetClone(karambitAsset, scene);
