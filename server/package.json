@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "launch": "node app.js"
+    "launch": "(cd ./../client/ && npm run build) && (cd ./../server/ && node app.js)"
   },
   "keywords": [],
   "author": "",
