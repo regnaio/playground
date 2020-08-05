@@ -18,8 +18,8 @@ class Asset {
       let materialIndex = 0;
       result.meshes.forEach(mesh => {
         mesh.isPickable = false;
-        mesh.position.copyFrom(this._meshPosition);
-        // mesh.rotation.copyFrom(this._meshRotation);
+        // mesh.position.copyFrom(this._meshPosition);
+        mesh.setAbsolutePosition(this._meshPosition);
         mesh.rotationQuaternion = this._meshRotation.toQuaternion();
         mesh.scaling.copyFrom(this._meshScaling);
         mesh.material = this._materials[materialIndex];
@@ -70,8 +70,8 @@ class AnimatedAsset extends Asset {
       let materialIndex = 0;
       result.meshes.forEach(mesh => {
         mesh.isPickable = false;
-        mesh.position.copyFrom(this._meshPosition);
-        // mesh.rotation.copyFrom(this._meshRotation);
+        // mesh.position.copyFrom(this._meshPosition);
+        mesh.setAbsolutePosition(this._meshPosition);
         mesh.rotationQuaternion = this._meshRotation.toQuaternion();
         mesh.scaling.copyFrom(this._meshScaling);
         mesh.material = this._materials[materialIndex];
@@ -140,14 +140,12 @@ class AssetClone {
   }
 
   // setParent(parent: BABYLON.Mesh, positionOffset: BABYLON.Vector3, rotationOffset: BABYLON.Vector3, scaling: BABYLON.Vector3): void {
-  setParent(parent: BABYLON.Mesh, positionOffset: BABYLON.Vector3, rotationOffset: BABYLON.Vector3): void {
+  setParent(parent: BABYLON.Mesh, positionOffset: BABYLON.Vector3, rotation: BABYLON.Vector3): void {
     this.meshes.forEach(mesh => {
-      mesh.position.copyFrom(parent.position);
-      mesh.position.addInPlace(positionOffset);
-      // mesh.rotation.addInPlace(rotationOffset);
-      mesh.rotationQuaternion = BABYLON.Quaternion.FromEulerVector(rotationOffset);
-      // mesh.scaling.copyFrom(scaling);
       mesh.setParent(parent);
+      // mesh.setAbsolutePosition(parent.getAbsolutePosition().add(positionOffset));
+      mesh.position.copyFrom(positionOffset);
+      mesh.rotationQuaternion = rotation.toQuaternion();
     });
   }
 }
@@ -182,11 +180,11 @@ class AnimatedAssetClone extends AssetClone {
     return this._assetContainer.skeletons[0];
   }
 
-  attachToBone(mesh: BABYLON.AbstractMesh, boneIndex: number): void {
-    mesh.detachFromBone();
-    this.skeleton.prepare();
-    mesh.attachToBone(this.skeleton.bones[boneIndex], this.meshes[0]);
-  }
+  // attachToBone(mesh: BABYLON.AbstractMesh, boneIndex: number): void {
+  //   mesh.detachFromBone();
+  //   this.skeleton.prepare();
+  //   mesh.attachToBone(this.skeleton.bones[boneIndex], this.meshes[0]);
+  // }
 
   animate(animationName: string, loop: boolean = true, callback?: (() => void)): void {
     const animationRange = this._animationRanges.get(animationName);
@@ -194,12 +192,12 @@ class AnimatedAssetClone extends AssetClone {
       this._scene.beginAnimation(this.skeleton, animationRange.from, animationRange.to, loop, 1, callback);
   }
 
-  setParent(parent: BABYLON.Mesh, positionOffset: BABYLON.Vector3, rotationOffset: BABYLON.Vector3): void {
+  setParent(parent: BABYLON.Mesh, positionOffset: BABYLON.Vector3, rotation: BABYLON.Vector3): void {
     this.meshes.forEach(mesh => {
-      mesh.position.copyFrom(parent.position);
-      mesh.position.addInPlace(positionOffset);
-      mesh.rotation.addInPlace(rotationOffset);
       mesh.setParent(parent);
+      // mesh.setAbsolutePosition(parent.getAbsolutePosition().add(positionOffset));
+      mesh.position.copyFrom(positionOffset);
+      mesh.rotationQuaternion = rotation.toQuaternion();
     });
   }
 }
@@ -559,11 +557,11 @@ class Playground {
         'CrouchForward', 'CrouchBackward', 'CrouchLeft', 'CrouchRight',
         'CrouchForwardLeft', 'CrouchForwardRight', 'CrouchBackwardLeft', 'CrouchBackwardRight'];
       const ybotTopAnimatedAsset = new AnimatedAsset(ybotTopURL, new BABYLON.Vector3(),
-        new BABYLON.Vector3(0, Math.PI * 0.6, 0), new BABYLON.Vector3(1, 1, 1).scale(0.011),
+        new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(1, 1, 1).scale(0.011),
         [ybotJointMaterial, ybotJointMaterial, ybotSurfaceMaterial],
         topNames, scene);
       const ybotBottomAnimatedAsset = new AnimatedAsset(ybotBottomURL, new BABYLON.Vector3(),
-        new BABYLON.Vector3(0, Math.PI / 2, 0), new BABYLON.Vector3(1, 1, 1).scale(0.011),
+        new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(1, 1, 1).scale(0.011),
         [ybotJointMaterial, ybotSurfaceMaterial],
         botNames, scene);
 
@@ -597,12 +595,12 @@ class Playground {
       ybotBottomAnimatedAsset.removeAllFromScene();
 
       ybotTop = new AnimatedAssetClone(ybotTopAnimatedAsset, scene);
-      ybotTop.setParent(compoundBody, new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, 0));
+      ybotTop.setParent(compoundBody, new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, Math.PI/2, 0));
 
       spineBone = ybotTop.skeleton.bones[1];
 
       ybotBottom = new AnimatedAssetClone(ybotBottomAnimatedAsset, scene);
-      ybotBottom.setParent(compoundBody, new BABYLON.Vector3(0, -1, 0), new BABYLON.Vector3(0, 0, 0));
+      ybotBottom.setParent(compoundBody, new BABYLON.Vector3(0, -1, 0), new BABYLON.Vector3(0, Math.PI/2, 0));
 
       const ak47 = new AssetClone(ak47Asset, scene);
       // ak47.position.copyFrom(new BABYLON.Vector3(9, 11, 9));
@@ -1518,7 +1516,7 @@ class Playground {
       // console.log(onObject);
       // console.log(ray.origin);
 
-      // console.log(command.cameraAlpha)
+      console.log(command.cameraAlpha);
       const viewAngleY = -command.cameraAlpha;
       compoundBody.rotationQuaternion = BABYLON.Quaternion.FromEulerAngles(0, viewAngleY, 0);
 
