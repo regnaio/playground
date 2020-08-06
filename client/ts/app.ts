@@ -367,7 +367,8 @@ class Playground {
     let smgCollider: BABYLON.Mesh;
     let sniperCollider: BABYLON.Mesh;
 
-    const weapons = new Array<BABYLON.Mesh>();
+    // const weapons = new Array<BABYLON.Mesh>();
+    const weapons = new Map<number, BABYLON.Mesh>();
     const weaponPhysicsImposters = new Array<BABYLON.PhysicsImpostor>();
 
     const bullets = new Map<number, {
@@ -651,12 +652,11 @@ class Playground {
         }
       }, scene);
 
-      // ak47Collider.position.x += 2.5;
-      // ak47Collider.position.y += 20;
-      // ak47Collider.position.z += 8;
+      ak47Collider.position.z -= 2;
       // ak47Collider.rotationQuaternion = new BABYLON.Vector3(0, 0, 0.5).toQuaternion();
 
-      weapons.push(ak47Collider);
+      // weapons.push(ak47Collider);
+      weapons.set(0, ak47Collider);
       weaponPhysicsImposters.push(ak47Collider.physicsImpostor);
 
       crossbowCollider = BABYLON.MeshBuilder.CreateBox('crossbow', { width: 1, height: 0.3, depth: 0.75 }, scene);
@@ -674,7 +674,8 @@ class Playground {
         }
       }, scene);
 
-      weapons.push(crossbowCollider);
+      // weapons.push(crossbowCollider);
+      weapons.set(1, crossbowCollider);
       weaponPhysicsImposters.push(crossbowCollider.physicsImpostor);
 
       const sniper = new AssetClone(sniperAsset, scene);
@@ -694,7 +695,8 @@ class Playground {
         }
       }, scene);
 
-      weapons.push(sniperCollider);
+      // weapons.push(sniperCollider);
+      // weapons.set(2, sniperCollider);
       weaponPhysicsImposters.push(sniperCollider.physicsImpostor);
 
       // Environment: 1 / 2 | 4 | 16 | 32
@@ -771,26 +773,29 @@ class Playground {
         // If prepare is not called, weapon will stay at spawn position until skeleton is in view
         ybotTop.skeleton.prepare();
 
-        const ak47 = new AssetClone(ak47Asset, scene);
+        // const ak47 = new AssetClone(ak47Asset, scene);
 
-        const ak47Collider = BABYLON.MeshBuilder.CreateBox('ak47', { width: 1.1, height: 0.3, depth: 0.1 }, scene);
-        const weaponColliderMaterial = new BABYLON.StandardMaterial('', scene);
-        weaponColliderMaterial.diffuseColor = new BABYLON.Color3(0, 1, 1);
-        weaponColliderMaterial.wireframe = true;
-        ak47Collider.material = weaponColliderMaterial;
+        // const ak47Collider = BABYLON.MeshBuilder.CreateBox('ak47', { width: 1.1, height: 0.3, depth: 0.1 }, scene);
+        // const weaponColliderMaterial = new BABYLON.StandardMaterial('', scene);
+        // weaponColliderMaterial.diffuseColor = new BABYLON.Color3(0, 1, 1);
+        // weaponColliderMaterial.wireframe = true;
+        // ak47Collider.material = weaponColliderMaterial;
 
-        ak47.setParent(ak47Collider, new BABYLON.Vector3(0, 0.06, 0), new BABYLON.Vector3());
-        ak47.show();
+        // ak47.setParent(ak47Collider, new BABYLON.Vector3(0, 0.06, 0), new BABYLON.Vector3());
+        // ak47.show();
 
-        ak47Collider.physicsImpostor = new BABYLON.PhysicsImpostor(ak47Collider,
-          BABYLON.PhysicsImpostor.BoxImpostor, {
-          mass: 1,
-          restitution: 0,
-          nativeOptions: {
-            collisionFilterGroup: 32,
-            collisionFilterMask: 1 | 2 | 4
-          }
-        }, scene);
+        // ak47Collider.physicsImpostor = new BABYLON.PhysicsImpostor(ak47Collider,
+        //   BABYLON.PhysicsImpostor.BoxImpostor, {
+        //   mass: 1,
+        //   restitution: 0,
+        //   nativeOptions: {
+        //     collisionFilterGroup: 32,
+        //     collisionFilterMask: 1 | 2 | 4
+        //   }
+        // }, scene);
+
+        // weapons.push(ak47Collider);
+        // weaponPhysicsImposters.push(ak47Collider.physicsImpostor);
 
         const pistol = new AssetClone(pistolAsset, scene);
         // pistol.position.copyFrom(new BABYLON.Vector3(-4, 3, 9));
@@ -800,25 +805,25 @@ class Playground {
         // knife.position.copyFrom(new BABYLON.Vector3(-5, -1, -4));
         // knife.rotation.copyFrom(new BABYLON.Vector3(-1.5, -1.5, 0));
 
-        const crossbow = new AssetClone(crossbowAsset, scene);
+        // const crossbow = new AssetClone(crossbowAsset, scene);
 
-        const crossbowCollider = BABYLON.MeshBuilder.CreateBox('crossbow', { width: 1, height: 0.3, depth: 0.75 }, scene);
-        crossbowCollider.material = weaponColliderMaterial;
+        // const crossbowCollider = BABYLON.MeshBuilder.CreateBox('crossbow', { width: 1, height: 0.3, depth: 0.75 }, scene);
+        // crossbowCollider.material = weaponColliderMaterial;
 
-        crossbow.setParent(crossbowCollider, new BABYLON.Vector3(-0.22, 0.05, 0), new BABYLON.Vector3());
-        crossbow.show();
-        crossbowCollider.physicsImpostor = new BABYLON.PhysicsImpostor(crossbowCollider,
-          BABYLON.PhysicsImpostor.BoxImpostor, {
-          mass: 1,
-          restitution: 0,
-          nativeOptions: {
-            collisionFilterGroup: 32,
-            collisionFilterMask: 1 | 2 | 4
-          }
-        }, scene);
+        // crossbow.setParent(crossbowCollider, new BABYLON.Vector3(-0.22, 0.05, 0), new BABYLON.Vector3());
+        // crossbow.show();
+        // crossbowCollider.physicsImpostor = new BABYLON.PhysicsImpostor(crossbowCollider,
+        //   BABYLON.PhysicsImpostor.BoxImpostor, {
+        //   mass: 1,
+        //   restitution: 0,
+        //   nativeOptions: {
+        //     collisionFilterGroup: 32,
+        //     collisionFilterMask: 1 | 2 | 4
+        //   }
+        // }, scene);
 
-        weapons.push(crossbowCollider);
-        weaponPhysicsImposters.push(crossbowCollider.physicsImpostor);
+        // weapons.push(crossbowCollider);
+        // weaponPhysicsImposters.push(crossbowCollider.physicsImpostor);
 
         const sniper = new AssetClone(sniperAsset, scene);
 
@@ -842,7 +847,8 @@ class Playground {
         // sniperCollider.position.z -= 1;
         // sniperCollider.rotationQuaternion = new BABYLON.Vector3(0, 0, 0.5).toQuaternion();
 
-        weapons.push(sniperCollider);
+        // weapons.push(sniperCollider);
+        // weapons.set(3, sniperCollider);
         weaponPhysicsImposters.push(sniperCollider.physicsImpostor);
 
         ybotTop.meshes[0].setParent(ybotTop.meshes[2]);
@@ -969,11 +975,17 @@ class Playground {
     cameraMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
     cameraMaterial.alpha = 0.25;
     cameraMesh.material = cameraMaterial;
-    cameraMesh.visibility = 0;
+    // cameraMesh.visibility = 0;
     cameraMesh.isPickable = false;
     // cameraMesh.setParent(compoundBody);
     // cameraMesh.setParent(cameraTargetMesh);
     // cameraMesh.position = new BABYLON.Vector3(0, 0.65, 1);
+
+    // @ts-ignore
+    const cameraMeshRay = new BABYLON.Ray();
+    const cameraMeshHelper = new BABYLON.RayHelper(cameraMeshRay);
+    cameraMeshHelper.attachToMesh(cameraMesh, new BABYLON.Vector3(0, -1, 0), new BABYLON.Vector3(0, 0, 0), 5);
+    cameraMeshHelper.show(scene, new BABYLON.Color3(0, 1, 0));
 
     // Slide (red)
     const slide = BABYLON.MeshBuilder.CreateBox('slide', { width: 3, height: 20 }, scene);
@@ -1425,7 +1437,11 @@ class Playground {
         // });
         prevFireTime = clientFrameTime;
       }
-    }
+    };
+
+    const drop = (): void => {
+      weapons.set(2, sniperCollider);
+    };
 
     const pickup = (): void => {
       weapons.forEach(weapon => {
@@ -1435,7 +1451,7 @@ class Playground {
           console.log('yay');
         }
       });
-    }
+    };
 
     let prevThrowTime = 0;
     const betweenThrowTime = 100;
@@ -1488,7 +1504,7 @@ class Playground {
               collisionFilterMask: 1 | 2 | 4 | 16
             }
           }, scene);
-        grenade.physicsImpostor.physicsBody.angularDamping = 0.999;
+        // grenade.physicsImpostor.physicsBody.angularDamping = 0.999;
         // bullet.physicsImpostor.physicsBody.collisionResponse = 0;
 
         let bounceTime: number;
@@ -1523,7 +1539,7 @@ class Playground {
 
         prevThrowTime = clientFrameTime;
       }
-    }
+    };
 
     let currentAnim = 'Idle';
     const jumpSet = new Set(['JumpUp', 'JumpAir', 'JumpDown']);
@@ -1535,11 +1551,6 @@ class Playground {
       }
 
       const delta = command.frameTime - prevFrameTime;
-
-      // if (spineBone) {
-      //     const viewAngleX = (Math.PI / 2 - command.cameraBeta) * 1;
-      //     spineBone.rotationQuaternion = BABYLON.Quaternion.FromEulerAngles(viewAngleX, 0, -viewAngleX);
-      // }
 
       // const pick = scene.pickWithRay(ray);
       // if (pick) onObject = pick.hit;
@@ -1652,6 +1663,7 @@ class Playground {
 
       cameraMesh.rotationQuaternion = cameraRotation.toQuaternion();
       cameraMesh.setAbsolutePosition(cameraTargetPosition);
+      cameraMesh.computeWorldMatrix(true); // syncs RayHelper to cameraMesh
 
       // const scale = new BABYLON.Vector3();
       // const rotation = new BABYLON.Quaternion();
@@ -1676,7 +1688,7 @@ class Playground {
       }
 
       prevFrameTime = command.frameTime;
-    }
+    };
 
     const flameTexture = new BABYLON.Texture('https://assets.babylonjs.com/particles/textures/explosion/FlameBlastSpriteSheet.png', scene, true, false);
     const flameTexture2 = new BABYLON.Texture('https://static.packt-cdn.com/products/9781785883910/graphics/4bfc14e9-f288-4e14-85bb-f46f71cf5192.png', scene, true, false);
@@ -1717,7 +1729,7 @@ class Playground {
       ps.start();
       ps.targetStopDuration = 1;
       ps.disposeOnStop = true;
-    }
+    };
 
     const flame = (position: BABYLON.Vector3): void => {
       const ps = new BABYLON.ParticleSystem('', 20, scene);
@@ -1760,7 +1772,7 @@ class Playground {
       ps.start();
       ps.targetStopDuration = 1;
       ps.disposeOnStop = true;
-    }
+    };
 
     loadAssets(scene);
 
