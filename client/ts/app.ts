@@ -222,10 +222,12 @@ class Playground {
     });
     scene.autoClearDepthAndStencil = false;
     scene.blockMaterialDirtyMechanism = true;
-    scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), new BABYLON.CannonJSPlugin());
+    const physEngine = new BABYLON.CannonJSPlugin();
+    scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), physEngine);
+    physEngine.setTimeStep(1/60);
 
-    const physEngine = scene.getPhysicsEngine();
-    physEngine.setSubTimeStep(1000 / 60);
+    // const physEngine = scene.getPhysicsEngine();
+    // physEngine.setSubTimeStep(1000 / 60);
 
     const options = new BABYLON.SceneOptimizerOptions(60);
     options.addOptimization(new BABYLON.ShadowsOptimization(0));
@@ -249,9 +251,11 @@ class Playground {
     // });
     optimizer.start();
 
-    const camera = new BABYLON.ArcRotateCamera('', 0, Math.PI / 2, 5, new BABYLON.Vector3(), scene);
-    camera.lowerRadiusLimit = 5;
-    camera.upperRadiusLimit = 5;
+    const MAX_RADIUS = 5;
+
+    const camera = new BABYLON.ArcRotateCamera('', 0, Math.PI / 2, MAX_RADIUS, new BABYLON.Vector3(), scene);
+    camera.lowerRadiusLimit = 0;
+    camera.upperRadiusLimit = MAX_RADIUS;
     camera.angularSensibilityX = 500;
     camera.angularSensibilityY = 500;
     camera.inertia = 0;
@@ -709,9 +713,9 @@ class Playground {
 
       // Other players
       let z = -30;
-      z = -4;
+      // z = -4;
       let y = 5;
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < 30; i++) {
         // Other players' physics capsule (orange wireframe)
         const wireframeMaterial2 = new BABYLON.StandardMaterial('', scene);
         wireframeMaterial2.wireframe = true;
@@ -984,7 +988,7 @@ class Playground {
     // @ts-ignore
     const cameraMeshRay = new BABYLON.Ray();
     const cameraMeshHelper = new BABYLON.RayHelper(cameraMeshRay);
-    cameraMeshHelper.attachToMesh(cameraMesh, new BABYLON.Vector3(0, -1, 0), new BABYLON.Vector3(0, 0, 0), 5);
+    cameraMeshHelper.attachToMesh(cameraMesh, new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, 0), 5);
     cameraMeshHelper.show(scene, new BABYLON.Color3(0, 1, 0));
 
     // Slide (red)
@@ -1044,8 +1048,8 @@ class Playground {
     // pillarMesh.setEnabled(false);
 
     let z = -100;
-    z = 0;
-    for (let i = 0; i < 1; i++) {
+    // z = 0;
+    for (let i = 0; i < 100; i++) {
       // const pillar = pillarMesh.createInstance('');
       const pillar = pillarMesh.clone('pillar');
       pillar.position.x -= 3;
@@ -1229,6 +1233,16 @@ class Playground {
     });
     // scene.onAfterStepObservable.add(() => {});
     scene.registerBeforeRender(() => {
+      const pick = scene.pickWithRay(cameraMeshRay);
+      if (pick.hit) {
+        console.log('close');
+        const cameraTargetPosition = cameraTargetMesh.getAbsolutePosition();
+        const hitRadius = cameraTargetPosition.subtract(pick.pickedPoint).length();
+        camera.radius = BABYLON.Scalar.Lerp(camera.radius, hitRadius, 0.1);
+      } else {
+        camera.radius = BABYLON.Scalar.Lerp(camera.radius, MAX_RADIUS, 0.1);
+      }
+
       players.forEach(player => {
         const { ybotTop, ybotBottom, ak47Collider, crossbowCollider, sniperCollider } = player;
         if (ybotTop !== undefined) {
@@ -1354,16 +1368,15 @@ class Playground {
     // bulletMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
     bulletMesh.material = bulletMat;
     bulletMesh.setEnabled(false);
-    gl.addIncludedOnlyMesh(bulletMesh);
+    // gl.addIncludedOnlyMesh(bulletMesh);
 
-    // const fire = (clientFrameTime: number, position: BABYLON.Vector3, rotation: BABYLON.Vector3): void => {
     const fire = (clientFrameTime: number): void => {
       if (clientFrameTime - prevFireTime > betweenFireTime) {
         console.log(numBulletsFired);
         numBulletsFired++;
 
         cameraMesh.computeWorldMatrix(true);
-        const forward = new BABYLON.Vector3(1, 0, 0);
+        const forward = new BABYLON.Vector3(-1, 0, 0);
         const transform = cameraMesh.getWorldMatrix();
         const forwardWorld = BABYLON.Vector3.TransformNormal(forward, transform);
         const direction = BABYLON.Vector3.Normalize(forwardWorld);
@@ -1383,20 +1396,14 @@ class Playground {
           }, scene);
         // bullet.physicsImpostor.physicsBody.collisionResponse = 0;
 
-        // const muzzle = compoundBody.position.add(new BABYLON.Vector3());
-        // const dir = camera.getForwardRay(1).direction;
-        // console.log('dir: ', dir);
-        const dir = direction;
-        // const origin = camera.position.add(dir.scale(3));
         const origin = cameraMesh.getAbsolutePosition();
-        const view = new BABYLON.Ray(origin, dir, 1000);
+        const view = new BABYLON.Ray(origin, direction, 1000);
         const pick = scene.pickWithRay(view);
 
         fireStart.computeWorldMatrix(true);
         const fireStartPos = fireStart.getAbsolutePosition();
         const finalDir = pick.pickedPoint.subtract(fireStartPos).normalize();
 
-        // bullet.position.copyFrom(fireStartPos);
         bullet.setAbsolutePosition(fireStartPos);
 
         const { x: dx, y: dy, z: dz } = pick.pickedPoint.subtract(fireStartPos);
@@ -1536,7 +1543,6 @@ class Playground {
         grenade.physicsImpostor.setLinearVelocity(finalDir.scale(15));
         // grenade.physicsImpostor.sleep();
 
-
         prevThrowTime = clientFrameTime;
       }
     };
@@ -1656,14 +1662,23 @@ class Playground {
         compoundBody.physicsImpostor.setLinearVelocity(old);
       }
 
-      // cameraTargetMesh.computeWorldMatrix(true);
+      compoundBody.computeWorldMatrix(true);
+      cameraTargetMesh.computeWorldMatrix(true);
       const cameraTargetPosition = cameraTargetMesh.getAbsolutePosition();
-      const cameraRotation = new BABYLON.Vector3(0, Math.PI - command.cameraAlpha, command.cameraBeta - Math.PI / 2);
-      // const cameraRotation = new BABYLON.Vector3(0, 0, -command.cameraBeta - Math.PI / 2);
+      const cameraRotation = new BABYLON.Vector3(0, -command.cameraAlpha, -command.cameraBeta + Math.PI / 2);
+      // const cameraRotation = new BABYLON.Vector3(0, 0, -command.cameraBeta - Math.PI/2);
 
       cameraMesh.rotationQuaternion = cameraRotation.toQuaternion();
       cameraMesh.setAbsolutePosition(cameraTargetPosition);
-      cameraMesh.computeWorldMatrix(true); // syncs RayHelper to cameraMesh
+      // cameraMesh.computeWorldMatrix(true); // syncs RayHelper to cameraMesh
+
+      // const pick = scene.pickWithRay(cameraMeshRay);
+      // if (pick.hit) {
+      //   console.log('close')
+      //   camera.radius = cameraTargetPosition.subtract(pick.pickedPoint).length();
+      // } else {
+      //   camera.radius = 5;
+      // }
 
       // const scale = new BABYLON.Vector3();
       // const rotation = new BABYLON.Quaternion();
