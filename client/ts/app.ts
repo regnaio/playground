@@ -1190,7 +1190,7 @@ class Playground {
           bullet.getAbsolutePosition());
 
         bullet.computeWorldMatrix(true);
-        ray.origin = bullet.getAbsolutePosition();
+        // ray.origin = bullet.getAbsolutePosition(); // Compensates for RayHelper lagging behind mesh
         let hit = false;
         obstacles.forEach(obstacle => {
           const pick = ray.intersectsMesh(obstacle, false);

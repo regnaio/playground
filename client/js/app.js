@@ -956,7 +956,7 @@ class Playground {
                 const { bullet, ray, rayHelper } = item;
                 bullet.physicsImpostor.applyForce(new BABYLON.Vector3(0, 9.8 * 1e-10, 0), bullet.getAbsolutePosition());
                 bullet.computeWorldMatrix(true);
-                ray.origin = bullet.getAbsolutePosition();
+                // ray.origin = bullet.getAbsolutePosition(); // Compensates for RayHelper lagging behind mesh
                 let hit = false;
                 obstacles.forEach(obstacle => {
                     const pick = ray.intersectsMesh(obstacle, false);
