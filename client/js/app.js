@@ -954,8 +954,9 @@ class Playground {
             move(command);
             for (const [uniqueID, item] of bullets) {
                 const { bullet, ray, rayHelper } = item;
-                // bullet.computeWorldMatrix(true);
                 bullet.physicsImpostor.applyForce(new BABYLON.Vector3(0, 9.8 * 1e-10, 0), bullet.getAbsolutePosition());
+                bullet.computeWorldMatrix(true);
+                ray.origin = bullet.getAbsolutePosition();
                 let hit = false;
                 obstacles.forEach(obstacle => {
                     const pick = ray.intersectsMesh(obstacle, false);
