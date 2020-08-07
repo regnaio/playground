@@ -345,7 +345,7 @@ class Playground {
         const offsetRotation = new BABYLON.Vector3(2.29, 1.82, 1.78);
         const scaling = new BABYLON.Vector3(1, 1, 1);
         const gl = new BABYLON.GlowLayer('', scene, {
-            blurKernelSize: 16
+            blurKernelSize: 64
         });
         gl.neutralColor.a = 0;
         const maxdPosition = 2;
@@ -945,7 +945,8 @@ class Playground {
         let dBeta = 1e-2;
         dBeta = 0;
         // Physics steps
-        scene.onBeforeStepObservable.add(() => {
+        // scene.onBeforeStepObservable.add(() => {
+        scene.onAfterStepObservable.add(() => {
             // Player move
             command.frameTime = Date.now();
             command.cameraAlpha = camera.alpha;
@@ -1385,7 +1386,7 @@ class Playground {
             // const cameraRotation = new BABYLON.Vector3(0, 0, -command.cameraBeta - Math.PI/2);
             cameraMesh.rotationQuaternion = cameraRotation.toQuaternion();
             cameraMesh.setAbsolutePosition(cameraTargetPosition);
-            // cameraMesh.computeWorldMatrix(true); // syncs RayHelper to cameraMesh
+            cameraMesh.computeWorldMatrix(true); // syncs RayHelper to cameraMesh
             // const pick = scene.pickWithRay(cameraMeshRay);
             // if (pick.hit) {
             //   console.log('close')
