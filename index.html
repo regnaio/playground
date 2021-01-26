@@ -13,8 +13,8 @@
     <script src="https://preview.babylonjs.com/cannon.js"></script>
     <script src="https://preview.babylonjs.com/Oimo.js"></script>
     <script src="https://preview.babylonjs.com/earcut.min.js"></script>
-    <script src="https://preview.babylonjs.com/babylon.js"></script>
-    <!-- <script src="lib/babylon.js"></script> -->
+    <!-- <script src="https://preview.babylonjs.com/babylon.js"></script> -->
+    <script src="lib/babylon/babylon.js"></script>
     <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
     <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
     <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
@@ -30,7 +30,7 @@
     <canvas id="renderCanvas"></canvas>
     <script src="js/app.js"></script>
     <script>
-      var canvas = document.getElementById("renderCanvas");
+      var canvas = document.getElementById('renderCanvas');
 
       var engine = null;
       var scene = null;
@@ -40,7 +40,7 @@
         return new BABYLON.Engine(canvas, true, {
           preserveDrawingBuffer: true,
           stencil: true,
-          disableWebGL2Support: false,
+          disableWebGL2Support: false
         });
       };
 
@@ -52,15 +52,13 @@
           try {
             return createDefaultEngine();
           } catch (e) {
-            console.log(
-              "the available createEngine function failed. Creating the default engine instead"
-            );
+            console.log('the available createEngine function failed. Creating the default engine instead');
             return createDefaultEngine();
           }
         };
 
         engine = await asyncEngineCreation();
-        if (!engine) throw "engine should not be null.";
+        if (!engine) throw 'engine should not be null.';
         scene = createScene();
       };
       initFunction().then(() => {
@@ -73,7 +71,7 @@
       });
 
       // Resize
-      window.addEventListener("resize", function () {
+      window.addEventListener('resize', function () {
         engine.resize();
       });
     </script>

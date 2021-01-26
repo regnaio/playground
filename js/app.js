@@ -1,24 +1,119 @@
 "use strict";
+// How filters work: https://github.com/schteppe/cannon.js/blob/master/demos/collisionFilter.html
+// How to use filters in Ammo in Babylon: https://github.com/BabylonJS/Babylon.js/pull/8028
+var CollisionFilterGroup;
+(function (CollisionFilterGroup) {
+    CollisionFilterGroup[CollisionFilterGroup["Ground"] = 4] = "Ground";
+    CollisionFilterGroup[CollisionFilterGroup["Rock"] = 8] = "Rock";
+})(CollisionFilterGroup || (CollisionFilterGroup = {}));
+var CollisionFilterMask;
+(function (CollisionFilterMask) {
+    CollisionFilterMask[CollisionFilterMask["Ground"] = 8] = "Ground";
+    CollisionFilterMask[CollisionFilterMask["Rock"] = 4] = "Rock";
+})(CollisionFilterMask || (CollisionFilterMask = {}));
+const createEngine = function () {
+    return new BABYLON.Engine(document.getElementById('renderCanvas'));
+};
+async function initPhysics(scene) {
+    // @ts-ignore
+    if (typeof Ammo === 'function') {
+        // @ts-ignore
+        await Ammo();
+    }
+    const physEngine = new BABYLON.AmmoJSPlugin();
+    scene.enablePhysics(new BABYLON.Vector3(0, -9.8, 0), physEngine);
+    const ground = BABYLON.MeshBuilder.CreateBox('', { width: 50, height: 1, depth: 50 }, scene);
+    const groundMaterial = new BABYLON.StandardMaterial('', scene);
+    groundMaterial.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+    ground.material = groundMaterial;
+    ground.position.y -= 0.5;
+    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {
+        mass: 0,
+        friction: 1,
+        restitution: 0.5,
+        // @ts-ignore
+        group: CollisionFilterGroup.Ground,
+        mask: CollisionFilterMask.Ground
+    }, scene);
+    const rock = BABYLON.MeshBuilder.CreateBox('', { width: 1, height: 5, depth: 2 }, scene);
+    const rockMaterial = new BABYLON.StandardMaterial('', scene);
+    rockMaterial.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
+    rock.material = rockMaterial;
+    rock.position.y += 25;
+    rock.rotation.x += 0.25;
+    rock.physicsImpostor = new BABYLON.PhysicsImpostor(rock, BABYLON.PhysicsImpostor.BoxImpostor, {
+        mass: 1,
+        friction: 1,
+        restitution: 0.5,
+        // @ts-ignore
+        group: CollisionFilterGroup.Rock,
+        mask: CollisionFilterMask.Rock
+    }, scene);
+    ground.physicsImpostor.registerOnPhysicsCollide(rock.physicsImpostor, () => {
+        console.log('%c Ground registerOnPhysicsCollide Rock', 'color: #ff0000');
+    });
+    ground.physicsImpostor.onCollide = e => {
+        console.log('%c Ground onCollide', 'color: #0000ff');
+    };
+    ground.physicsImpostor.onCollideEvent = (collider, collidedWith) => {
+        console.log('%c Ground onCollideEvent', 'color: #ffff00');
+    };
+    rock.physicsImpostor.registerOnPhysicsCollide(ground.physicsImpostor, () => {
+        console.log('%c Rock registerOnPhysicsCollide Ground', 'color: #00ff00');
+    });
+    rock.physicsImpostor.onCollide = e => {
+        console.log('%c Rock onCollide', 'color: #ff8800');
+    };
+    rock.physicsImpostor.onCollideEvent = (collider, collidedWith) => {
+        console.log('%c Rock onCollideEvent', 'color: #ff00ff');
+    };
+}
 class Playground {
     static CreateScene(engine, canvas) {
-        // This creates a basic Babylon Scene object (non-mesh)
-        var scene = new BABYLON.Scene(engine);
-        // This creates and positions a free camera (non-mesh)
-        var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-        // This targets the camera to scene origin
-        camera.setTarget(BABYLON.Vector3.Zero());
-        // This attaches the camera to the canvas
-        camera.attachControl(canvas, true);
-        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-        var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-        // Default intensity is 1. Let's dim the light a small amount
-        light.intensity = 0.7;
-        // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
-        var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
-        // Move the sphere upward 1/2 its height
-        sphere.position.y = 1;
-        // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
-        var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
+        const scene = new BABYLON.Scene(engine);
+        initPhysics(scene);
+        setupCamera(scene, canvas);
+        loadAxes(scene);
+        const light = new BABYLON.HemisphericLight('', new BABYLON.Vector3(0, 1, 0), scene);
         return scene;
     }
+}
+function setupCamera(scene, canvas) {
+    const camera = new BABYLON.ArcRotateCamera('', 0, Math.PI / 4, 100, new BABYLON.Vector3(), scene);
+    camera.keysUp = [];
+    camera.keysLeft = [];
+    camera.keysDown = [];
+    camera.keysRight = [];
+    camera.attachControl(canvas, false);
+    camera.setTarget(new BABYLON.Vector3(0, 5, 0));
+}
+function loadAxes(scene) {
+    const size = 100;
+    const axisX = BABYLON.Mesh.CreateLines('axisX', [
+        new BABYLON.Vector3(),
+        new BABYLON.Vector3(size, 0, 0),
+        new BABYLON.Vector3(size * 0.95, 0.05 * size, 0),
+        new BABYLON.Vector3(size, 0, 0),
+        new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
+    ], scene);
+    axisX.isPickable = false;
+    axisX.color = new BABYLON.Color3(1, 0, 0);
+    const axisY = BABYLON.Mesh.CreateLines('axisY', [
+        new BABYLON.Vector3(),
+        new BABYLON.Vector3(0, size, 0),
+        new BABYLON.Vector3(-0.05 * size, size * 0.95, 0),
+        new BABYLON.Vector3(0, size, 0),
+        new BABYLON.Vector3(0.05 * size, size * 0.95, 0)
+    ], scene);
+    axisY.isPickable = false;
+    axisY.color = new BABYLON.Color3(0, 1, 0);
+    const axisZ = BABYLON.Mesh.CreateLines('axisZ', [
+        new BABYLON.Vector3(),
+        new BABYLON.Vector3(0, 0, size),
+        new BABYLON.Vector3(0, -0.05 * size, size * 0.95),
+        new BABYLON.Vector3(0, 0, size),
+        new BABYLON.Vector3(0, 0.05 * size, size * 0.95)
+    ], scene);
+    axisZ.isPickable = false;
+    axisZ.color = new BABYLON.Color3(0, 0, 1);
 }
